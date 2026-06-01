@@ -1,6 +1,6 @@
-## Data Science Repository
+# Data Science Repository
 
-# Author: Lucy Wang
+## Author: Lucy Wang
 
 [act04 Tidyverse](https://tcwangdlsu.github.io/datasci/myrmarkdown/act04.html)
 
