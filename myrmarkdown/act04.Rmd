@@ -1,0 +1,55 @@
+---
+title: "act04"
+output: html_document
+date: "2026-06-01"
+---
+## A1
+```{r}
+library(tidyverse)
+```
+
+## A2
+```{r}
+  act4df <- read.csv("habitat_types.csv")
+```
+
+## A3
+```{r}
+  act4df |> glimpse()
+```
+
+## A4
+```{r}
+  subset <- select(act4df, Transect, Htypes, SmallTrees, FloweringTrees)
+```
+
+## A5
+```{r}
+  subset |> 
+    filter(Htypes == "CVT") |> 
+    arrange(desc(SmallTrees)) 
+```
+IT2P7 and IT3P0 has the most count of small trees (10)
+
+## A6
+```{r}
+  subset |> 
+    group_by(Htypes) |>
+    summarize(mean_FT = mean(FloweringTrees)) 
+```
+ASG and ESG do not differ significantly
+
+## A7
+```{r}
+  sel_df_mod <- act4df |>  
+    mutate(HerbGroundDiff = HerbsCover - GroundCover)
+  filter(sel_df_mod, HerbGroundDiff == 0) |>
+    select(Transect, HerbGroundDiff)
+```
+three of the transects with no difference: IT1P5, IT2P5, IT3P1
+  
+## A8
+```{r}
+  sel_df_mod |> 
+    pivot_wider(names_from = Htypes, values_from = c(SmallTrees, FloweringTrees, HerbGroundDiff))
+```
