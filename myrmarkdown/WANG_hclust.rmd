@@ -1,0 +1,92 @@
+---
+title: "Act08"
+output: html_document
+date: "2026-06-11"
+---
+
+A2
+```{r}
+df08 <- read.csv("morphology_data.csv")
+```
+
+A3
+```{r}
+df08 <- df08[, -c(1, 2)]
+```
+
+A4
+```{r}
+good <- complete.cases(df08)
+df08 <- df08[good, ]
+```
+
+A5
+```{r}
+df08_scaled <- scale(df08)
+d <- dist(df08_scaled, method = "euclidean")
+```
+
+A6
+```{r}
+hc_ward <- hclust(d, method = "ward.D2")
+plot(hc_ward,
+     main = "Ward D2",
+     labels = rownames(df08_scaled),
+     cex = 0.7)
+hc_single <- hclust(d, method = "single")
+plot(hc_single,
+     main = "Single Linkage")
+```
+
+A7
+```{r}
+library(cluster)
+avg_sil_width_W <- numeric()
+avg_sil_width_S <- numeric()
+
+for(k in 2:10){
+  clusters_W <- cutree(hc_ward, k = k)
+  clusters_S <- cutree(hc_single, k = k)
+  sil_W <- silhouette(clusters_W, d)
+  sil_S <- silhouette(clusters_S, d)
+  avg_sil_width_W[k] <- mean(sil_W[, 3])
+  avg_sil_width_S[k] <- mean(sil_S[, 3])
+}
+
+plot(2:10,
+  avg_sil_width_W[2:10], 
+  type = "b",
+  pch = 19,
+  xlab = "Number of clusters",
+  ylab = "Silhouette score",
+  main = "Ward"
+  )
+
+plot(2:10,
+  avg_sil_width_S[2:10], 
+  type = "b",
+  pch = 19,
+  xlab = "Number of clusters",
+  ylab = "Silhouette score",
+  main = "Single Linkage"
+  )
+```
+
+A8
+```{r}
+plot(hc_ward,     
+  main = "Ward",
+  cex = 0.7)
+rect.hclust(hc_ward, 
+  k = 2, 
+  border = c("red", "blue")
+  )
+
+plot(hc_single,     
+  main = "Single Linkage",
+  cex = 0.7)
+rect.hclust(hc_single, 
+  k = 2, 
+  border = c("red", "blue")
+  )
+```
