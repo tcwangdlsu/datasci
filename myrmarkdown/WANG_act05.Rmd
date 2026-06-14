@@ -1,0 +1,163 @@
+---
+title: "Act05"
+output: html_document
+date: "2026-06-14"
+---
+
+A1:
+Read in the cleaned patients dataset, "patient_data.csv", into a new object called "patients".
+```{r}
+library(ggplot2)
+patients <- read.csv("patient_data.csv") 
+```
+
+A2:
+Generate a scatterplot of BMI versus Weight using the patient dataset and add a color scale based on the Height variable.
+A3:
+Using an additional geom, add an extra layer of a fit line to the previous plot.
+A4:
+Does the fit in the previous plot look good? Look at the help page for “geom_smooth” and adjust the method to fit a straight line without standard error bounds.
+```{r}
+ggplot(patients, mapping = aes(BMI, Weight, col = Height)) + 
+  geom_point() + 
+  geom_smooth(method = "lm", se = FALSE)
+```
+
+A5: 
+Generate a boxplot of Score values comparing smokers and non-smokers.
+A6:
+Split the previous boxplot into male and female groups with different colors.
+```{r}
+ggplot(patients, mapping = aes(Smokes, Score, col = Sex)) + 
+  geom_boxplot()
+```
+
+A7:
+Generate a histogram of BMIs with each bar colored blue, choosing a suitable bin width.
+```{r}
+ggplot(patients, mapping = aes(x = BMI)) + 
+  geom_histogram(fill = "blue", binwidth = 1)
+```
+
+A8:
+Instead of a histogram, generate a density plot of BMI.
+A9:
+Generate density plots of BMIs colored by Sex.
+```{r}
+ggplot(patients, mapping = aes(x = BMI, col = Sex)) + 
+  geom_density()
+```
+
+B1:
+Generate a scatterplot of BMI versus Weight, add a color scale to the scatterplot based on the Height variable, and split the plot into a grid of plots separated by Smoking status and Sex.
+```{r}
+ggplot(patients, mapping = aes(BMI, Weight, col = Height)) + 
+  geom_point() + 
+  facet_grid(Smokes ~ Sex)
+```
+
+B2:
+Generate a boxplot of BMIs comparing smokers and non-smokers, color the boxplot by Sex, and include a separate facet for people of different ages.
+```{r}
+ggplot(patients, mapping = aes(Smokes, BMI, col = Sex)) +
+  geom_boxplot() + 
+  facet_grid(~ Age)
+```
+
+B3:
+Produce a similar boxplot of BMIs, but this time group data by Sex, color by Age, and facet by Smoking status.
+```{r}
+ggplot(patients, mapping = aes(Sex, BMI, col = factor(Age))) +
+  geom_boxplot() +
+  facet_grid(~Smokes)
+```
+
+C1:
+Generate a scatterplot of BMI versus Weight from the patients dataset.
+```{r}
+ggplot(patients, aes(BMI, Weight)) +
+  geom_point()
+```
+
+C2:
+Starting from the previous plot, adjust the BMI axis to show only labels for 20, 30, 40 and the weight axis to show breaks for 60 to 100 in steps of 5, adding the units (kilograms) to the axis label. Look at the help page for “scale_x_continuous” and “scale_y_continuous”
+```{r}
+ggplot(patients, aes(BMI, Weight)) +
+  geom_point() + 
+  scale_x_continuous(
+    limits = c(20, 40), 
+    breaks = seq(20, 40, by = 10)
+  ) + 
+  scale_y_continuous(
+    limits = c(60, 100), 
+    breaks = seq(60, 100, by = 5),
+    name = "Weight in Kilograms"
+  )
+```  
+
+C3:
+Create a violin plot of BMI by Age where violins are filled using a sequential color palette. Look at the help page for “scale_fill_brewer”
+```{r}
+ggplot(patients, aes(BMI, Age, fill = factor(Age))) +
+  geom_violin() + 
+  scale_fill_brewer(
+    palette = "Oranges"
+  )
+```  
+
+C4:
+Create a scatterplot of BMI versus Weight and add a continuous color scale for height. Make the color scale with a midpoint (set to the mean point) color of grey and extremes of green (low) and red (high). Look at the help page for “scale_colour_gradient2”
+```{r}
+ggplot(patients, aes(BMI, Weight, col = Height)) + 
+  geom_point() +
+  scale_colour_gradient2(
+    low = "green", 
+    high = "red", 
+    mid = "grey",
+    midpoint = mean(patients$Height)
+  )
+```
+
+C5:
+Recreate the scatterplot of BMI by weight this time, coloring by age group, and add a straight line fit (but no standard error/confidence intervals) for each age group.
+```{r}
+ggplot(patients, aes(BMI, Weight, col = factor(Age))) + 
+  geom_point() + 
+  geom_smooth(method = "lm", se = FALSE)
+```
+
+C6:
+Remove the legend title from the previous plot, change the background colors of legend keys to white, and place the legend at the bottom of the plot. Look at the help page for “theme”
+```{r}
+ggplot(patients, aes(BMI, Weight, col = factor(Age))) + 
+  geom_point() + 
+  geom_smooth(method = "lm", se = FALSE) +
+  theme(
+    legend.key = element_rect(fill = "white"),
+    legend.title = element_blank(),
+    legend.position = "bottom"
+  )
+```
+
+C7:
+Add a title to the plot and remove the minor grid lines. Save the plot to a 5 by 5 inch image file.
+```{r}
+Final05 <- ggplot(patients, aes(BMI, Weight, col = factor(Age))) + 
+  geom_point() + 
+  geom_smooth(method = "lm", se = FALSE) +
+  labs(title = "BMI Scores by Weight and Age") +
+  theme(
+    plot.title = element_text(hjust = 0.5),
+    panel.grid.minor = element_blank(),
+    legend.key = element_rect(fill = "white"),
+    legend.title = element_blank(),
+    legend.position = "bottom"
+  )
+Final05
+ggsave("Final05.png",
+       plot = Final05, 
+       width = 5, 
+       height = 5, 
+       units = "in"
+)
+```  
