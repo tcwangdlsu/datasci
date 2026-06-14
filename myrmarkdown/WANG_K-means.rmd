@@ -1,0 +1,107 @@
+---
+title: "Act07"
+output: html_document
+date: "2026-06-08"
+---
+
+A2: 
+Read in the morphology data as a dataframe.
+```{r}
+df07 <- read.csv("morphology_data.csv")
+```
+
+A3: 
+Remove the sex column.
+```{r}
+df07 <- df07[, -2]
+df07 <- df07[, -1]
+```
+
+A4: 
+Ensure that the dataframe has no NAs.
+```{r}
+good <- complete.cases(df07)
+df07 <- df07[good, ]
+```
+
+A5: 
+Prior to performing K-means, standardize all values using the “scale” function.
+```{r}
+df07_scaled <- scale(df07)
+```
+
+A6: 
+Perform K-means with 3 cluster centers using 25 initial random centroids.
+```{r}
+set.seed(123)
+kmeans_result <- kmeans(df07_scaled, centers = 3, nstart = 25)
+```
+
+A7: 
+Show the cluster assignment and a summary of results by simply printing them to the console.
+```{r}
+head(kmeans_result$cluster)
+kmeans_result
+```
+
+A8: 
+Create a scatter plot with points colored by the assigned cluster.
+```{r}
+plot(
+  df07_scaled[, 1:2],
+  col = kmeans_result$cluster,
+  pch = 19,
+  xlab = "SVL (scaled)",
+  ylab = "TD (scaled)",
+  main = "K-means Clustering"
+)
+```
+
+B1: 
+Now, create a loop function to perform K-means with cluster centers from 2 to 10.
+```{r}
+wss <- 0
+for (k in 2:10){
+  set.seed(123) 
+  kmeans210 <- kmeans(df07_scaled, centers = k, nstart = 25)
+  wss[k] <- kmeans210$tot.withinss
+}
+```
+
+B2: 
+From the output of your loop function, create an elbow curve plot to determine the optimal K.
+```{r}
+plot(2:10, 
+     wss[2:10], 
+     type = "b", 
+     pch = 19,
+     xlab = "Number of Clusters (K)", 
+     ylab = "WSS", 
+     main = "Elbow Curve"
+     )
+library(ggplot2)
+library(factoextra)
+fviz_nbclust(
+  df07_scaled,
+  kmeans,
+  method = "wss",
+  k.max = 10
+)
+```
+
+B3: 
+Recreate steps 6–8 above using the optimal K determined by the elbow curve.
+```{r}
+set.seed(123) 
+kmeans2 <- kmeans(df07_scaled, centers = 2, nstart = 25)
+kmeans2$cluster
+kmeans2
+plot(
+  df07_scaled[, 1:2],
+  col = kmeans2$cluster,
+  pch = 19,
+  xlab = "SVL (scaled)",
+  ylab = "TD (scaled)",
+  main = "K-means Clustering (K=2)"
+)
+```
