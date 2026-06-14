@@ -8,5 +8,7 @@
 
 [act05 Data visualization](https://tcwangdlsu.github.io/datasci/myrmarkdown/WANG_act05.html)
 
+[act07 K-means](https://tcwangdlsu.github.io/datasci/myrmarkdown/WANG_K-means.html)
+
 [act08 hclust](https://tcwangdlsu.github.io/datasci/myrmarkdown/WANG_hclust.html)
 
