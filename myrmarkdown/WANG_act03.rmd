@@ -1,0 +1,126 @@
+---
+title: "Act03"
+output: html_document
+date: "2026-06-14"
+---
+  
+A1: 
+Read in the CSV file as a dataframe. Make sure to clean the data prior to performing the tasks below. 
+```{r}
+  df <- read.csv("herpetozoa-033-095-s001.csv")
+  good <- complete.cases(df)
+  cdf <- df[good, ]
+```
+
+A2: 
+Show the data structure.
+```{r}
+  class(cdf)
+  str(cdf)
+```
+
+A3: 
+Subset the elevation data and provide the mean, standard deviation, and range.
+```{r}
+  elev <- cdf[, 5]
+  mean(elev)
+  sd(elev)
+  range(elev)
+```
+
+A4: 
+Subset the species data (columns G to AG) and count the total number of observations per species. Show two methods, using a typical loop and a compact loop. Which species has the most and the fewest observations?
+```{r}
+  species <- cdf[, 7:33]
+  loop <- 0
+  for (i in seq_len(ncol(species))){
+    loop[i] <- (sum(species[i]))
+  }
+  table <- matrix(loop, nrow = 27, ncol = 1)
+  dimnames(table) <- list(names(species), "Observation sums")
+  table
+  
+  cloop <- sapply(species, sum)
+  cloop
+  max(cloop)
+  min(cloop)
+  which(cloop == max(cloop))
+  which(cloop == min(cloop))
+```
+
+A5: 
+Combine the columns of species with the most and fewest observations with habitat types (Htypes). Determine the mean count of these species in each habitat type. Which habitat type has the most species counts?
+```{r}
+  df03 <- cdf[c("Htypes", "Phlo", "Babu", "Geat", "Hety", "Bosc", "Drru", "Apbo")]
+  ASG <- df03[df03$Htypes == "ASG", -1]
+  CVT <- df03[df03$Htypes == "CVT", -1]
+  ESG <- df03[df03$Htypes == "ESG", -1]
+  OGF <- df03[df03$Htypes == "OGF", -1]
+  ASG_mean <- sapply(ASG, mean)
+  CVT_mean <- sapply(CVT, mean)
+  ESG_mean <- sapply(ESG, mean)
+  OGF_mean <- sapply(OGF, mean)
+  table_mean <- cbind(ASG_mean, CVT_mean, ESG_mean, OGF_mean)
+  table_mean
+  ASG_sum <- sapply(ASG, sum)
+  CVT_sum <- sapply(CVT, sum)
+  ESG_sum <- sapply(ESG, sum)
+  OGF_sum <- sapply(OGF, sum)
+  table_sum <- cbind(ASG_sum, CVT_sum, ESG_sum, OGF_sum)
+  table_sum
+```
+
+B1: 
+From the original dataframe, combine the species total count column (SPPTotal) with the elevation and habitat type columns and create a scatter plot where elevation should be on the x-axis, while species total count is on the y-axis. Change the point colors based on habitat type. Are there habitat types with no species observations? What are these?
+
+```{r}
+  df032<- cdf[, 4:6]
+  df032
+  df032_col <- c(ASG = "red", CVT = "green", ESG = "purple", OGF = "orange")
+  plot(
+    df032$Elev,
+    df032$SPPTotal, 
+    col = df032_col[df032$Htypes],
+    pch = 19, 
+    main = "Total Species Count per Elevation Level",
+    xlab = "Elevation level", 
+    ylab = "Total Species Count"
+  )
+  df032[df032$SPPTotal == 0, ]
+```
+
+B2: 
+From the combined data of species total counts, elevation, and habitat types, determine the total/sum number of species observed per habitat, and create a bar plot (use the bar plot help) where the x-axis shows the habitat types and the y-axis shows the total species.
+```{r}
+  ASG32 <- sum(df032[df032$Htypes == "ASG", -(1:2)])
+  CVT32 <- sum(df032[df032$Htypes == "CVT", -(1:2)])
+  ESG32 <- sum(df032[df032$Htypes == "ESG", -(1:2)])
+  OGF32 <- sum(df032[df032$Htypes == "OGF", -(1:2)])
+  bardf <- c(ASG32, CVT32, ESG32, OGF32)
+  bardf
+  barplot(
+    bardf, 
+    names.arg = c("ASG", "CVT", "ESG", "OGF"),
+    main = "Total Species Count per Habitat", 
+    xlab = "Habitat Types",
+    ylab = "Total Species Count", 
+    col = df032_col
+  )
+```
+
+B3: 
+Lastly, create a histogram of total species counts using the histogram function. Make sure all axes are properly labeled.
+```{r}
+  hist(
+    df032$SPPTotal, 
+    main = "Total Species Count",
+    xlab = "Total Species Count",
+    ylab = "Frequency",
+    col = "pink"
+  )
+```
+
+C1: 
+Based on the summary statistics and preliminary graphs you just created, how do you describe the relationship between total species observed and habitat types and elevation?
+
+Based on the summary statistics, the elevation range is 60 to 1020 meters. The mean of the elevation is about 379 meters. Based on the scatter plot, lower elevation level has a higher species count. The bar plot shows that habitat ASG has the highest total species count, while CVT has the lowest. 
