@@ -13,3 +13,11 @@
 [act08 hclust](https://tcwangdlsu.github.io/datasci/myrmarkdown/WANG_hclust.html)
 
 [act09 PCA](https://tcwangdlsu.github.io/datasci/myrmarkdown/WANG_act09.html)
+
+[act10 GIS]
+
+[act11 Linear Regression]
+
+[act12 Logistic regression]
+
+[act13 Random Forest]
