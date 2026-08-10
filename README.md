@@ -14,7 +14,7 @@
 
 [act09 PCA](https://tcwangdlsu.github.io/datasci/myrmarkdown/WANG_act09.html)
 
-[act10 GIS]
+[act10 GIS](https://tcwangdlsu.github.io/datasci/myrmarkdown/WANG_gis.html)
 
 [act11 Linear Regression]
 
