@@ -1,0 +1,62 @@
+---
+title: "Act10"
+output: html_document
+date: "2026-06-22"
+---
+```{r}
+library(maps)
+library(osmdata)
+library(sf)
+library(terra)
+library(ggplot2)
+library(dplyr)
+library(ggnewscale)
+```
+
+A3: Clean the data by removing records found outside the reported species range. 
+(data is cleaned by manually filtered out blanks and removing records found outside the reported species range in excel)
+```{r}
+df10 <- read.csv("Trimeresurus schultzei.csv")
+```
+
+A4: Go to the DIVA-GIS website and download the Philippine administrative boundaries/areas. The zip file contains multiple shapefiles (adm0–3), representing different boundary levels (0-country; 1-provincial; 2-municipal; 3-barangay).
+```{r}
+adm <- st_read("PHL_adm1.shp")
+```
+
+A5: Get only the provincial level, and subset the provinces that contain only distribution records for your assigned species.
+```{r}
+pal <- adm[adm$NAME_1 == "Palawan", ]
+```
+
+A6: Go back to the DIVA-GIS website. Download the Philippine digital elevation model (“Elevation [country mask]”), then clip it using the provinces you selected in step 5.
+```{r}
+alt <- rast("PHL_msk_alt.vrt")
+print(st_crs(pal) != st_crs(alt))
+pal <- st_transform(pal, st_crs(alt))
+dem <- crop(alt, pal) |> mask(pal)
+```
+
+B1: Now, put all the data together into a map, following the pre-lab lecture. Make sure that data layers (points, polygons, DEMs) are arranged properly. Be creative!
+```{r}
+names(dem) <- "elevation"
+r_df <- as.data.frame(dem, xy = TRUE)
+ggplot() +
+  geom_tile(data = r_df, aes(x = x, y = y, fill = elevation)) +
+  scale_fill_gradientn(
+    colors = c("#2b83ba", "#abdda4", "#ffffbf", "#fdae61", "#d7191c"),
+    name = "Elevation (m)") +
+  new_scale_fill() +
+  geom_point(data = df10,
+             aes(x = decimalLongitude, y = decimalLatitude),
+             shape = 21,
+             fill = "black",
+             color = "green",
+             size = 3,
+             stroke = 1.2) +
+  coord_equal() +
+  labs(title = "Palawan Province",
+       x = "Longitude",
+       y = "Latitude") +
+  theme_bw()
+```
