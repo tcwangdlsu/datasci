@@ -1,0 +1,124 @@
+---
+title: "Act11"
+output: html_document
+date: "2026-07-06"
+---
+A2: Read in the species data and remove unnecessary rows with NAs.
+```{r}
+df11 <- read.csv("herpetozoa-033-095-s001.csv")
+good <- complete.cases(df11)
+df11 <- df11[good, ]
+```
+
+A3: Read in the elevation data (ph_strm_geo.tif).
+```{r}
+library(terra)
+elev <- rast("wc2.1_10m_elev.tif")
+```
+
+A4: From the species data, subset the longitude and latitude coordinates. Then convert the coordinates to a spatial vector using the “vect” function from the “terra” package.
+```{r}
+coord <- vect(df11, geom = c("Long", "Lat"))
+```
+
+A5: Using the converted coordinates, extract elevation data for each point with the “extract” function in the “terra” package. The extracted data will have two columns: “ID” and “Band_1.” The “Band_1” column contains the elevation.
+```{r}
+extractElev <- extract(elev, coord)
+```
+
+A6: Subset the species data to retain only the species richness column (SPPTotal). Then combine this column with the extracted elevation. Rename “Band_1” to “elevation.”
+```{r}
+df11SPP <- data.frame(
+  SPPTotal = df11$SPPTotal,
+  elevation = extractElev[, 2]
+)
+```
+
+A7: Now, perform simple linear regression using the code from the pre-lab lecture, including a plot. What can you infer about the relationship between species and elevation?
+```{r}
+x <- df11SPP$elevation
+y <- df11SPP$SPPTotal
+xbar <- mean(x)
+ybar <- mean(y)
+b <- sum((x - xbar) * (y - ybar)) /
+     sum((x - xbar)^2)
+a <- ybar - b * xbar
+cat("Regression Equation:\n")
+cat("y =", round(a,3), "+", round(b,3), "x\n")
+yhat <- a + b * x
+plot(x, y,
+     pch = 19,
+     col = "orange",
+     xlab = "Elevation (m)",
+     ylab = "SPPTotal",
+     main = "Simple Linear Regression")
+abline(a, b,
+       col = "blue",
+       lwd = 2)
+points(x, yhat,
+       pch = 17,      # Triangle
+       col = "green",
+       cex = 1.2)
+segments(x0 = x, y0 = y,
+         x1 = x, y1 = yhat,
+         lty = 2,
+         col = "red")
+legend("topright",
+       legend = c("Observed", "Predicted", "Regression Line"),
+       pch = c(19, 17, NA),
+       lty = c(NA, NA, 1),
+       col = c("orange", "green", "blue"),
+       lwd = c(NA, NA, 2),
+       bty = "n",
+       cex = 0.8)
+```
+
+B1: Read in both annual precipitation and temperature data and extract the data following the instructions from A4–5.
+```{r}
+preci <- rast("annual_precipitation.tif")
+temp <- rast("annual_temperature.tif")
+extractpreci <- extract(preci, coord)
+extracttemp <- extract(temp, coord)
+```
+
+B2: Combine the extracted data with the species and elevation data into a single dataframe.
+```{r}
+df11Ult <- data.frame(
+  SPPTotal = df11$SPPTotal,
+  elevation = extractElev[, 2],
+  precipitation = extractpreci[, 2],
+  temperature = extracttemp[, 2]
+)
+```
+
+B3: Perform multiple linear regression using the “lm” function.
+```{r}
+x <- df11Ult$elevation
+x1 <- df11Ult$precipitation
+x2 <- df11Ult$temperature
+y <- df11Ult$SPPTotal
+model <- lm(y ~ x + x1 + x2)
+coef(model)
+a <- coef(model)[1]
+b <- coef(model)[2]
+c <- coef(model)[3]
+d <- coef(model)[4]
+cat("Regression Equation:\n")
+cat("y =", round(a, 3), "+", round(b, 3), "x +", round(c, 3), "x1 +", round(d, 3), "x2\n\n")
+yhat <- predict(model)
+residuals <- residuals(model)
+summary(model)$r.squared
+results <- data.frame(
+  elevation = x, 
+  precipitation = x1,
+  temperature = x2, 
+  Observed = y,
+  Predicted = round(yhat,2),
+  Residual = round(residuals,2)
+)
+print(results)
+summary(model)
+```
+
+B4: Which relationship is statistically significant?
+The relationship of species diversity with 3 conditions: elevation, precipitation, and temperature, are all statistically significant. 
