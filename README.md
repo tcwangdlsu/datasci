@@ -16,7 +16,7 @@
 
 [act10 GIS](https://tcwangdlsu.github.io/datasci/myrmarkdown/WANG_gis.html)
 
-[act11 Linear Regression]
+[act11 Linear Regression](https://tcwangdlsu.github.io/datasci/myrmarkdown/WANG_linear_reg.html)
 
 [act12 Logistic regression]
 
