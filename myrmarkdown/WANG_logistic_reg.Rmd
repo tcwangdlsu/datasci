@@ -1,0 +1,113 @@
+---
+title: "Act12"
+output: html_document
+date: "2026-07-09"
+---
+```{r}
+library(maps)
+library(osmdata)
+library(sf)
+library(terra)
+library(ggplot2)
+library(dplyr)
+library(ggnewscale)
+```
+
+A2: Read in the species data and remove unnecessary rows with NAs.
+```{r}
+df12 <- read.csv("ph_mouse_deer.csv")
+good <- complete.cases(df12)
+df12 <- df12[good, ]
+```
+
+A3: Generate a map showing the species' observation localities using the longitude and latitude coordinates. Check Activity 10 and use the provided codes as your guide for creating the map. Export the map as a PDF file.
+```{r}
+adm <- st_read("PHL_adm1.shp")
+pal <- adm[adm$NAME_1 == "Palawan", ]
+alt <- rast("PHL_msk_alt.vrt")
+print(st_crs(pal) != st_crs(alt))
+pal <- st_transform(pal, st_crs(alt))
+dem <- crop(alt, pal) |> mask(pal)
+names(dem) <- "elevation"
+r_df <- as.data.frame(dem, xy = TRUE)
+
+map_act12 <- ggplot() +
+  geom_tile(data = r_df, aes(x = x, y = y, fill = elevation)) +
+  scale_fill_gradientn(
+    colors = c("#2b83ba", "#abdda4", "#ffffbf", "#fdae61", "#d7191c"),
+    name = "Elevation (m)") +
+  new_scale_fill() +
+  geom_point(data = df12,
+             aes(x = Longitude, y = Latitude),
+             shape = 21,
+             fill = "brown",
+             color = "black",
+             size = 2.5,
+             stroke = 1.2) +
+  coord_equal() +
+  labs(title = "Philippine Mouse Deer",
+       x = "Longitude",
+       y = "Latitude") +
+  theme_bw()
+map_act12
+ggsave("map_act12.pdf",
+       plot = map_act12, 
+       width = 8, 
+       height = 10, 
+       units = "in"
+)
+```
+
+A4: Using the “glm()” function, perform multiple logistic regression. Ensure that the habitat types (i.e., HabitatCode; CVT - Cultivation; ESG - Early secondary growth forest; ASG - Advanced secondary growth forest; OGF - Old-growth forest) are treated as categorical variables by converting them to factors.
+```{r}
+df12$Habitat <- as.factor(df12$Habitat)
+model <- glm(Detected ~ AverageDistance + Effort + Habitat,
+             family = binomial,
+             data = df12)
+```
+
+A5: After fitting the model, create a logistic regression curve plot for each independent variable used. Export the plots as PDF files.
+```{r}
+newdata1 <- data.frame(
+  AverageDistance = seq(min(df12$AverageDistance), max(df12$AverageDistance), length.out = 100),
+  Effort = mean(df12$Effort),
+  Habitat = "ASG"
+)
+newdata1$prob <- predict(model,
+                        newdata = newdata1,
+                        type = "response")
+plot(df12$AverageDistance, df12$Detected,
+     pch = 19,
+     xlab = "Average Distance",
+     ylab = "Probability",
+     ylim = c(0,1))
+lines(newdata1$AverageDistance,
+      newdata1$prob,
+      col = "skyblue",
+      lwd = 3)
+
+newdata2 <- data.frame(
+  AverageDistance = mean(df12$AverageDistance),
+  Effort = seq(min(df12$Effort), max(df12$Effort), length.out = 100),
+  Habitat = "ASG"
+)
+newdata2$prob <- predict(model,
+                        newdata = newdata2,
+                        type = "response")
+plot(df12$Effort, df12$Detected,
+     pch = 19,
+     xlab = "Sampling Effort",
+     ylab = "Probability",
+     ylim = c(0,1))
+lines(newdata2$Effort,
+      newdata2$prob,
+      col = "pink",
+      lwd = 3)
+```
+
+A6: Now, output the model summary and examine the results.
+```{r}
+summary(model)
+```
+
+A7: In a Word document, put together all the plots (including the map) and your interpretation of the results.
