@@ -18,6 +18,6 @@
 
 [act11 Linear Regression](https://tcwangdlsu.github.io/datasci/myrmarkdown/WANG_linear_reg.html)
 
-[act12 Logistic regression]
+[act12 Logistic regression](https://tcwangdlsu.github.io/datasci/myrmarkdown/WANG_logistic_reg.html)
 
 [act13 Random Forest]
