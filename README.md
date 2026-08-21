@@ -20,4 +20,3 @@
 
 [act12 Logistic regression](https://tcwangdlsu.github.io/datasci/myrmarkdown/WANG_logistic_reg.html)
 
-[act13 Random Forest]
